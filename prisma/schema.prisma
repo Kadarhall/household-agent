@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum HouseholdRole {
+  OWNER
+  ADMIN
+  MEMBER
+  CHILD
+}
+
+enum CalendarOperation {
+  CREATE
+  UPDATE
+  DELETE
+}
+
+model Household {
+  id        String            @id @default(cuid())
+  name      String
+  members   HouseholdMember[]
+  rules     HouseholdRule[]
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model HouseholdMember {
+  id             String               @id @default(cuid())
+  householdId    String
+  externalSubject String              @unique
+  displayName    String
+  role           HouseholdRole        @default(MEMBER)
+  household      Household            @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  confirmations  ActionConfirmation[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@unique([householdId, id])
+  @@index([householdId, role])
+}
+
+model HouseholdRule {
+  id          String    @id @default(cuid())
+  householdId String
+  name        String
+  description String
+  isActive    Boolean   @default(true)
+  household   Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([householdId, isActive])
+}
+
+model ActionConfirmation {
+  id                 String            @id @default(cuid())
+  householdId         String
+  requestedByMemberId String
+  operation           CalendarOperation
+  payload             Json
+  expiresAt           DateTime
+  confirmedAt         DateTime?
+  usedAt              DateTime?
+  requestedByMember   HouseholdMember   @relation(fields: [householdId, requestedByMemberId], references: [householdId, id], onDelete: Cascade)
+  createdAt           DateTime          @default(now())
+
+  @@index([householdId, requestedByMemberId, expiresAt])
+}
