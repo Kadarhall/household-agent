@@ -1,0 +1,10 @@
+{
+  "name": "@household/shared",
+  "private": true,
+  "main": "src/index.ts",
+  "dependencies": {
+    "@household/agent": "*",
+    "@household/calendar": "*",
+    "@household/household": "*"
+  }
+}
