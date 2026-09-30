@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-household}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-household}
+      POSTGRES_DB: ${POSTGRES_DB:-household}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-household} -d ${POSTGRES_DB:-household}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    image: node:24-alpine
+    working_dir: /workspace
+    command: sh -c "npm install && npm run dev --workspace @household-agent/web"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-household}:${POSTGRES_PASSWORD:-household}@db:5432/${POSTGRES_DB:-household}?schema=public
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_REDIRECT_URI: ${GOOGLE_REDIRECT_URI:-http://localhost:3000/api/auth/callback/google}
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/workspace
+      - node-modules:/workspace/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  node-modules:
+  postgres-data:

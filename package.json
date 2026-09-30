@@ -1,0 +1,16 @@
+{
+  "name": "household-agent",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "mcp/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @household-agent/web",
+    "build": "npm run build --workspace @household-agent/web",
+    "lint": "npm run lint --workspace @household-agent/web",
+    "db:generate": "npm run generate --workspace @household-agent/database"
+  }
+}
