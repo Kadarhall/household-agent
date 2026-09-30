@@ -1,0 +1,5 @@
+{
+  "name": "@household/database",
+  "private": true,
+  "main": "src/index.ts"
+}

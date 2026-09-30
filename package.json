@@ -1,0 +1,12 @@
+{
+  "name": "household-agent",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @household/web",
+    "build": "npm run build --workspaces --if-present"
+  }
+}
